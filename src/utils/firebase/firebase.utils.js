@@ -1,9 +1,9 @@
 import { initializeApp } from "firebase/app";
 import {
   getAuth,
-  signInWithRedirect,
   signInWithPopup,
   GoogleAuthProvider,
+  createUserWithEmailAndPassword,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -22,29 +22,34 @@ const firebaseApp = initializeApp(firebaseConfig);
 
 ////////////////////////////////////////////////////////
 // Create and customize Google Auth
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
+const googleProvider = new GoogleAuthProvider();
+
+googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
 // Instantianting auth
 export const auth = getAuth();
 // Setting up popup
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+export const signInWithGooglePopup = () =>
+  signInWithPopup(auth, googleProvider);
 
 ////////////////////////////////////////////////////////
 //Instantianting firestore
 export const db = getFirestore();
 
-export const createUserDocumentFromAuth = async (userAuth) => {
+export const createUserDocumentFromAuth = async (
+  userAuth,
+  additionalInformation = {}
+) => {
+  // With typescript this 'if' won't be needed
+  if (!userAuth) return;
+
   // doc creates a document object and has 3 paramaters: database, collection, document.
   const userDocRef = doc(db, "users", userAuth.uid);
-  console.log(userDocRef);
 
   // getDoc will return an actual state of the pointed document in the database.
   const userSnapshot = await getDoc(userDocRef);
-  console.log(userSnapshot);
-  console.log(userSnapshot.exists());
 
   if (!userSnapshot.exists()) {
     // create / set the document with the data from userAuth in my collection
@@ -56,6 +61,7 @@ export const createUserDocumentFromAuth = async (userAuth) => {
         displayName,
         email,
         createdAt,
+        ...additionalInformation,
       });
     } catch (error) {
       console.log("error creating the user", error.message);
@@ -63,4 +69,14 @@ export const createUserDocumentFromAuth = async (userAuth) => {
   }
 
   return userDocRef;
+};
+
+////////////////////////////////////////////////////////
+
+// The methods created in this file, protect the front end from changes in the service code we are using
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+  // With typescript this 'if' won't be needed
+  if (!email || !password) return;
+
+  return await createUserWithEmailAndPassword(auth, email, password);
 };
