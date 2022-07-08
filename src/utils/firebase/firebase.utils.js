@@ -69,10 +69,7 @@ export const createUserDocumentFromAuth = async (
     }
   }
 
-  const userSecondSnapshot = await getDoc(userDocRef);
-  const userData = userSecondSnapshot.data();
-
-  return userData;
+  return userDocRef;
 };
 
 ////////////////////////////////////////////////////////

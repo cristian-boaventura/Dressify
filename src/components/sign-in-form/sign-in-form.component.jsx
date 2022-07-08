@@ -33,12 +33,11 @@ const SignInForm = () => {
     event.preventDefault();
 
     try {
-      const { user } = await signInAuthUserWithEmailAndPassword(
+      const response = await signInAuthUserWithEmailAndPassword(
         email,
         password
       );
-      const userData = await createUserDocumentFromAuth(user);
-      console.log(userData);
+      console.log(response);
       resetFormFields();
     } catch (error) {
       switch (error.code) {
