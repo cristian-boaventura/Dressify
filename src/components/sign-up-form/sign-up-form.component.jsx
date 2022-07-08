@@ -108,7 +108,9 @@ const SignUpForm = () => {
           value={confirmPassword}
           disabled={disabled}
         />
-        <Button children="Sign Up" type="submit" disabled={disabled} />
+        <Button type="submit" disabled={disabled}>
+          Sign Up
+        </Button>
       </form>
     </div>
   );
