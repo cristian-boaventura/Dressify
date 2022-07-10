@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import FormInput from "../form-input/form-input.component";
 import Button from "../button/button.component";
@@ -19,6 +20,8 @@ const defaultformFields = {
 };
 
 const SignUpForm = () => {
+  const navigate = useNavigate();
+
   const [disabled, setDisabled] = useState(false);
   const [formFields, setFormFields] = useState(defaultformFields);
   // Get formFields values
@@ -47,6 +50,7 @@ const SignUpForm = () => {
 
       await createUserDocumentFromAuth(user, { displayName });
 
+      navigate("/");
       resetFormFields();
       setDisabled(false);
     } catch (error) {
