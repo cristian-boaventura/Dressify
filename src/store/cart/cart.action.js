@@ -1,14 +1,25 @@
 import { createAction } from "../../utils/reducer/reducer.utils";
 import { CART_ACTION_TYPES } from "./cart.types";
+import {
+  addCartItem,
+  removeCartItem,
+  clearCartItem,
+} from "../../utils/reducer/reducer.utils";
 
 export const setIsCartOpen = (bool) =>
   createAction(CART_ACTION_TYPES.SET_IS_CART_OPEN, bool);
 
-export const addItemToCart = (productToAdd) =>
-  createAction(CART_ACTION_TYPES.ADD_ITEM_TO_CART, productToAdd);
+export const addItemToCart = (cartItems, productToAdd) => {
+  const newCartItems = addCartItem(cartItems, productToAdd);
+  return createAction(CART_ACTION_TYPES.SET_CART_ITEMS, newCartItems);
+};
 
-export const removeItemFromCart = (cartItemToRemove) =>
-  createAction(CART_ACTION_TYPES.REMOVE_ITEM_FROM_CART, cartItemToRemove);
+export const removeItemFromCart = (cartItems, cartItemToRemove) => {
+  const newCartItems = removeCartItem(cartItems, cartItemToRemove);
+  return createAction(CART_ACTION_TYPES.SET_CART_ITEMS, newCartItems);
+};
 
-export const clearItemFromCart = (cartItemToClear) =>
-  createAction(CART_ACTION_TYPES.CLEAR_ITEM_FROM_CART, cartItemToClear);
+export const clearItemFromCart = (cartItems, cartItemToClear) => {
+  const newCartItems = clearCartItem(cartItems, cartItemToClear);
+  return createAction(CART_ACTION_TYPES.SET_CART_ITEMS, newCartItems);
+};
