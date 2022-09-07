@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app";
 import {
   getAuth,
   signInWithPopup,
-  signInWithRedirect,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -46,10 +45,11 @@ export const auth = getAuth();
 // Setting up popup
 export const signInWithGooglePopup = () =>
   signInWithPopup(auth, googleProvider);
+/*
 // Setting up redirect (just in case we want to use it)
 export const signInWithGoogleRedirect = () =>
   signInWithRedirect(auth, googleProvider);
-
+*/
 ////////////////////////////////////////////////////////
 //Instantianting firestore
 export const db = getFirestore();
@@ -110,7 +110,7 @@ export const createUserDocumentFromAuth = async (
     }
   }
 
-  return userDocRef;
+  return userSnapshot;
 };
 
 ////////////////////////////////////////////////////////
@@ -133,3 +133,16 @@ export const signOutUser = async () => await signOut(auth);
 
 export const onAuthStateChangedListener = (callback) =>
   onAuthStateChanged(auth, callback);
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsuscribe = onAuthStateChanged(
+      auth,
+      (userAuth) => {
+        unsuscribe();
+        resolve(userAuth);
+      },
+      reject
+    );
+  });
+};

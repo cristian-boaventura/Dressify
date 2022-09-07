@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+import { emailSignUpStart } from "../../store/user/user.action";
 
 import FormInput from "../form-input/form-input.component";
 import Button from "../button/button.component";
-
-import {
-  createAuthUserWithEmailAndPassword,
-  createUserDocumentFromAuth,
-} from "../../utils/firebase/firebase.utils";
 
 import { SignUpContainer } from "./sign-up-form.styles";
 
@@ -21,8 +19,8 @@ const defaultformFields = {
 
 const SignUpForm = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const [disabled, setDisabled] = useState(false);
   const [formFields, setFormFields] = useState(defaultformFields);
   // Get formFields values
   const { displayName, email, password, confirmPassword } = formFields;
@@ -40,26 +38,9 @@ const SignUpForm = () => {
       return;
     }
 
-    try {
-      setDisabled(true);
+    dispatch(emailSignUpStart({ email, password, displayName }));
 
-      const { user } = await createAuthUserWithEmailAndPassword(
-        email,
-        password
-      );
-
-      await createUserDocumentFromAuth(user, { displayName });
-
-      navigate("/");
-      resetFormFields();
-      setDisabled(false);
-    } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        alert("Cannot create user, email already in use");
-      } else {
-        console.log("user creation encountered and error", error);
-      }
-    }
+    resetFormFields();
   };
 
   // Set formFields new values
@@ -81,7 +62,6 @@ const SignUpForm = () => {
           onChange={handleChange}
           name="displayName"
           value={displayName}
-          disabled={disabled}
         />
 
         <FormInput
@@ -91,7 +71,6 @@ const SignUpForm = () => {
           onChange={handleChange}
           name="email"
           value={email}
-          disabled={disabled}
         />
 
         <FormInput
@@ -101,7 +80,6 @@ const SignUpForm = () => {
           onChange={handleChange}
           name="password"
           value={password}
-          disabled={disabled}
         />
 
         <FormInput
@@ -111,11 +89,8 @@ const SignUpForm = () => {
           onChange={handleChange}
           name="confirmPassword"
           value={confirmPassword}
-          disabled={disabled}
         />
-        <Button type="submit" disabled={disabled}>
-          Sign Up
-        </Button>
+        <Button type="submit">Sign Up</Button>
       </form>
     </SignUpContainer>
   );
