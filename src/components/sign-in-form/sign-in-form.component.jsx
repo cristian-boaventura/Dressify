@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import FormInput from "../form-input/form-input.component";
@@ -17,7 +16,6 @@ const defaultformFields = {
 };
 
 const SignInForm = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [formFields, setFormFields] = useState(defaultformFields);
@@ -32,10 +30,9 @@ const SignInForm = () => {
     setFormFields({ ...formFields, [name]: value });
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-
-    dispatch(emailSignInStart(email, password));
+    dispatch(emailSignInStart(formFields));
     resetFormFields();
   };
 

@@ -1,8 +1,14 @@
-import { takeLatest, put, all, call, select } from "redux-saga/effects";
+import { takeLatest, put, all, call } from "redux-saga/effects";
 
 import { USER_ACTION_TYPES } from "./user.types";
-import { signInSuccess, signInFailed, signOutSuccess } from "./user.action";
-import { selectCredentials } from "./user.selector";
+import {
+  signInSuccess,
+  signInFailed,
+  signOutSuccess,
+  signUpSuccess,
+  signUpFailed,
+  signOutFailed,
+} from "./user.action";
 
 import {
   createUserDocumentFromAuth,
@@ -36,46 +42,43 @@ export function* isUserAuthenticated() {
   }
 }
 
-export function* emailSignIn() {
+export function* emailSignIn({ payload: { email, password } }) {
   try {
-    const { email, password } = yield select(selectCredentials);
-    yield call(signInAuthUserWithEmailAndPassword, email, password);
-    yield call(isUserAuthenticated);
+    const { user } = yield call(
+      signInAuthUserWithEmailAndPassword,
+      email,
+      password
+    );
+    yield call(getSnapshotFromUserAuth, user);
   } catch (error) {
-    switch (error.code) {
-      case "auth/wrong-password":
-        alert("incorrect password for email");
-        break;
-      case "auth/user-not-found":
-        alert("no user associated with this email");
-        break;
-      default:
-        console.log(error);
-    }
+    yield put(signInFailed(error));
   }
 }
 
 export function* googleSignIn() {
-  yield call(signInWithGooglePopup);
-  yield call(isUserAuthenticated);
+  try {
+    const { user } = yield call(signInWithGooglePopup);
+    yield call(getSnapshotFromUserAuth, user);
+  } catch (error) {
+    yield put(signInFailed(error));
+  }
 }
 
-export function* emailSignUp() {
+export function* signUp({ payload: { email, password, displayName } }) {
   try {
-    const { email, password, displayName } = yield select(selectCredentials);
     const { user } = yield call(
       createAuthUserWithEmailAndPassword,
       email,
       password
     );
-    yield call(getSnapshotFromUserAuth, user, { displayName });
+    yield put(signUpSuccess(user, { displayName }));
   } catch (error) {
-    if (error.code === "auth/email-already-in-use") {
-      alert("Cannot create user, email already in use");
-    } else {
-      console.log("user creation encountered and error", error);
-    }
+    yield put(signUpFailed(error));
   }
+}
+
+export function* signInAfterSignUp({ payload: { user, additionalDetails } }) {
+  yield call(getSnapshotFromUserAuth, user, additionalDetails);
 }
 
 export function* signOut() {
@@ -83,7 +86,7 @@ export function* signOut() {
     yield call(signOutUser);
     yield put(signOutSuccess());
   } catch (error) {
-    console.log(error);
+    yield put(signOutFailed(error));
   }
 }
 
@@ -99,8 +102,12 @@ export function* onGoogleSignInStart() {
   yield takeLatest(USER_ACTION_TYPES.GOOGLE_SIGN_IN_START, googleSignIn);
 }
 
-export function* onEmailSignUpStart() {
-  yield takeLatest(USER_ACTION_TYPES.EMAIL_SIGN_UP_START, emailSignUp);
+export function* onSignUpStart() {
+  yield takeLatest(USER_ACTION_TYPES.SIGN_UP_START, signUp);
+}
+
+export function* onSignUpSuccess() {
+  yield takeLatest(USER_ACTION_TYPES.SIGN_UP_SUCCESS, signInAfterSignUp);
 }
 
 export function* onSignOutStart() {
@@ -112,7 +119,8 @@ export function* userSagas() {
     call(onCheckUserSession),
     call(onEmailSignInStart),
     call(onGoogleSignInStart),
-    call(onEmailSignUpStart),
+    call(onSignUpStart),
+    call(onSignUpSuccess),
     call(onSignOutStart),
   ]);
 }

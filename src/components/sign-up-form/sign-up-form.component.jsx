@@ -1,15 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-
-import { emailSignUpStart } from "../../store/user/user.action";
 
 import FormInput from "../form-input/form-input.component";
 import Button from "../button/button.component";
 
 import { SignUpContainer } from "./sign-up-form.styles";
+import { signUpStart } from "../../store/user/user.action";
 
-// Set default object for the state
 const defaultformFields = {
   displayName: "",
   email: "",
@@ -18,18 +15,15 @@ const defaultformFields = {
 };
 
 const SignUpForm = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [formFields, setFormFields] = useState(defaultformFields);
-  // Get formFields values
   const { displayName, email, password, confirmPassword } = formFields;
 
   const resetFormFields = () => {
     setFormFields(defaultformFields);
   };
 
-  // Create user
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -38,12 +32,11 @@ const SignUpForm = () => {
       return;
     }
 
-    dispatch(emailSignUpStart({ email, password, displayName }));
+    dispatch(signUpStart(formFields));
 
     resetFormFields();
   };
 
-  // Set formFields new values
   const handleChange = (event) => {
     const { name, value } = event.target;
 
