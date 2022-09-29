@@ -7,10 +7,11 @@ import {
   signOutSuccess,
   signUpFailed,
   signUpStart,
+  User,
 } from "./user.action";
 
 export type UserState = {
-  readonly currentUser: null;
+  readonly currentUser: User | null;
   readonly isLoading: boolean;
   readonly error: Error | null;
 };
@@ -21,7 +22,10 @@ export const USER_INITIAL_STATE: UserState = {
   error: null,
 };
 
-export const userReducer = (state = USER_INITIAL_STATE, action: AnyAction) => {
+export const userReducer = (
+  state = USER_INITIAL_STATE,
+  action: AnyAction
+): UserState => {
   if (signUpStart.match(action) || emailSignInStart.match(action)) {
     return {
       ...state,
