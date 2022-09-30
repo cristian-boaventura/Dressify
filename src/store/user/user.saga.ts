@@ -1,5 +1,5 @@
 import { takeLatest, put, all, call } from "typed-redux-saga/macro";
-import { User } from "firebase/auth";
+import { User, AuthError, AuthErrorCodes } from "firebase/auth";
 
 import { USER_ACTION_TYPES } from "./user.types";
 import {
@@ -99,6 +99,12 @@ export function* signUp({
     }
   } catch (error) {
     yield* put(signUpFailed(error as Error));
+
+    if ((error as AuthError).code === AuthErrorCodes.EMAIL_EXISTS) {
+      alert("Cannot create user, email already in use");
+    } else {
+      console.log("user creation encountered an error", error);
+    }
   }
 }
 
