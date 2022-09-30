@@ -1,4 +1,4 @@
-import { takeLatest, all, call, put } from "redux-saga/effects";
+import { takeLatest, all, call, put } from "typed-redux-saga/macro";
 
 import { getCategoriesAndDocuments } from "../../utils/firebase/firebase.utils";
 
@@ -12,11 +12,11 @@ import { CATEGORIES_ACTION_TYPES } from "./category.types";
 export function* fetchCategoriesAsync() {
   try {
     // call() will call the method with the subsequent string as a parameter. Note the categories parameter is actually misleading but I will leave it for reference of the call method.
-    const categoriesArray = yield call(getCategoriesAndDocuments, "categories");
+    const categoriesArray = yield* call(getCategoriesAndDocuments);
     // put() works like dispatch.
-    yield put(fetchCategoriesSuccess(categoriesArray));
+    yield* put(fetchCategoriesSuccess(categoriesArray));
   } catch (error) {
-    yield put(fetchCategoriesFailed(error));
+    yield* put(fetchCategoriesFailed(error as Error));
   }
 }
 

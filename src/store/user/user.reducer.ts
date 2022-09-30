@@ -7,11 +7,11 @@ import {
   signOutSuccess,
   signUpFailed,
   signUpStart,
-  User,
+  UserWithId,
 } from "./user.action";
 
 export type UserState = {
-  readonly currentUser: User | null;
+  readonly currentUser: UserWithId | null;
   readonly isLoading: boolean;
   readonly error: Error | null;
 };
